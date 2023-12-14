@@ -1,0 +1,33 @@
+.settings-menu {
+    width: 85%;
+    height: 65%;
+    background-color: #faf2f2;
+    border-radius: 10px;
+    align-self: center;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    border: 1px solid #cfc5c5;
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+}
+
+.settings-menu__title {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    &:nth-child(1) {
+        font-size: 20px;
+        margin-left: 10px;
+    }
+    &:nth-child(1) {
+        margin-right: 10px;
+    }
+}
+
+.settings-menu__content {
+    margin-top: 20px;
+    align-self: center;
+    width: 90%;
+    font-size: 20px;
+}
