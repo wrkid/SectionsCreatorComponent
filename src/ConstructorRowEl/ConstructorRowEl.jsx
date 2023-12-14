@@ -7,57 +7,65 @@ import { SectionsManagerContext } from '../SectionsManager/SectionsManagerContex
 
 const ConstructorRowEl = ({ row }) => {
 
-    const { layoutDate, handleSettingsMenu, editRowDate, removeRowDate } = useContext(SectionsManagerContext);
-
-    const [ columns, setColumns ] = useState(1);
-
-    const idGen = (r, c) => {
-        return String(r) + String(c);
-    }
-
-    const [ layout, setLayout ] = useState({
-        1: {i: idGen(row + 1, 1),x: columns - 1, y: row, w: 1, h: 1},
-    })
+    const { layoutDate, handleSettingsMenu, editRowDate } = useContext(SectionsManagerContext);
 
     const [ gridLayoutStyle, setGridLayoutStyle ] = useState({gridTemplateColumns: '1fr', gridTemplateRows: '1fr'});
 
+    const [ columns, setColumns ] = useState(1);
+
+    const [ layoutRow, setLayoutRow ] = useState(layoutDate[row]);
 
     useEffect(() => {
-        const gridStyle = {gridTemplateColumns: Object.values(layout).map(el => {
-            if(el.w) {
-                return String(el.w) + 'fr';
-            } else {
-                return '';
-            }
-        }).join(' ')};
-        setGridLayoutStyle(gridStyle);
-        editRowDate(row + 1, Object.values(layout).filter(el => el.i))
-        return () => {
-            removeRowDate(row + 1)
-        }               
-    }, [columns, layout])
+        editRowDate(row, layoutRow);
+        gridLayoutStyled();
+    }, [layoutRow])
+
+    const gridLayoutStyled = () => {
+        const v = layoutRow.map(v => v.w + 'fr').join(' ');
+        const style = {gridTemplateColumns: v};
+        setGridLayoutStyle(style);
+    }
+
+    const addColumn = () => {
+        if (columns < 3) {
+            setColumns(prev => prev + 1)
+            const id = Number(String(row) + (columns + 1));
+            // задать правильно x y w и h? 
+            const newValue = {i: id, x: columns, y: row - 1, w: 1, h: 1};
+            setLayoutRow([...layoutRow, newValue])   
+        }
+    }
+
+    const removeColumn = () => {
+        if (columns > 1) {
+            setColumns(prev => prev - 1)
+            const newSectionValue = JSON.parse(JSON.stringify(layoutRow));
+            const row = newSectionValue.slice(0, columns - 1)
+            setLayoutRow(row)  
+        } 
+    }   
 
     const handleLayoutX = (e, i) => {
-        setLayout(layout => {
-            const newValue = {...layout[i], w: Number(e.target.value)}
-            return ({...layout, [i]: newValue})
-        })
+        const value = e.target.value;
+        const newRowDate = JSON.parse(JSON.stringify(layoutRow));
+        newRowDate[i].w = Number(value);
+        setLayoutRow(newRowDate);
     }
 
     const handleLayoutY = (e, i) => {
-        setLayout(layout => {
-            const newValue = {...layout[i], h: Number(e.target.value)}
-            return ({...layout, [i]: newValue})
-        })
+        const value = e.target.value;
+        const newRowDate = JSON.parse(JSON.stringify(layoutRow));
+        newRowDate[i].h = Number(value);
+        setLayoutRow(newRowDate);
     }
 
     const renderColumns = () => {
         let columnsEl = [];
-        const r = String(row + 1);
+        let name = '';
+        const r = String(row);
         for (let i = 1; i <= columns; i ++) {
-            let name = '';
             try {
-                name = layoutDate[r][i - 1]?.name
+                name = layoutDate[r][i - 1].name;
             } catch {
                 name = '';
             }
@@ -65,23 +73,26 @@ const ConstructorRowEl = ({ row }) => {
                 <div key = {i} className="constructor-container__row__el__section">
                     <SettingOutlined 
                         style={{marginLeft: '15px', marginTop: '15px', fontSize: '20px'}}
-                        onClick={() => handleSettingsMenu(r + i)}/>
+                        onClick={() => handleSettingsMenu(r + i)}
+                    />
                     <div className='constructor-container__row__el__section__name'>{name}</div>
                     <div className='constructor-container__row__el__section__inputs'>
                         <label>
                         x:
                             <input 
                                 className='constructor-container__row__el__section__input' 
-                                value={`${layout[i].w}`}
-                                onChange={(e) => handleLayoutX(e, i)}>    
+                                value={`${layoutRow[i-1].w}`}
+                                onChange={(e) => handleLayoutX(e, i - 1)}
+                            >    
                             </input>
                         </label>
                         <label>
                         y:
                             <input 
                                 className='constructor-container__row__el__section__input' 
-                                value={`${layout[i].h}`}
-                                onChange={(e) => handleLayoutY(e, i)}>    
+                                value={`${layoutRow[i-1].h}`}
+                                onChange={(e) => handleLayoutY(e, i - 1)}
+                            >    
                             </input>
                         </label>
                     </div>
@@ -91,29 +102,16 @@ const ConstructorRowEl = ({ row }) => {
         return columnsEl;
     }
 
-    const addColumn = () => {
-        if (columns < 3) {
-            setColumns(prev => prev + 1)
-            const newValue = {i: idGen(row + 1, columns + 1),x: columns, y: row, w: 1, h: 1};
-            setLayout({...layout, [columns+1]: newValue})   
-        }
-    }
-
-    const removeColumn = () => {
-        if (columns > 1) {
-            setColumns(prev => prev - 1)
-            setLayout({...layout, [columns]: ''})  
-        } 
-    }
-
     return (
         <div className='constructor-container__row'>
             <PlusCircleOutlined 
-                        style={{alignSelf: 'center', fontSize: '30px', cursor: 'pointer'}}
-                        onClick={() => addColumn()}/>
+                style={{alignSelf: 'center', fontSize: '30px', cursor: 'pointer'}}
+                onClick={() => addColumn()}
+            />
             <MinusCircleOutlined 
                 style={{alignSelf: 'center', fontSize: '30px', cursor: 'pointer', marginLeft: '5px'}}
-                onClick={() => removeColumn()}/>
+                onClick={() => removeColumn()}
+                />
             <div className="constructor-container__row__el" style={gridLayoutStyle}>
                 {renderColumns()}
             </div>

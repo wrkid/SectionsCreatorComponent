@@ -25,10 +25,11 @@ const SectionsManager = () => {
 
     useEffect(() => {
         // const childrenLayout = Object.values(layoutDate).map(el => el);
-        console.log(layoutDate)
+        //console.log(layoutDate)
         sectionData();
     }, [layoutDate])
 
+    // ------------ Вывод нужынх данных
     const sectionData = () => {
         const arr = [];
         const data = Object.values(layoutDate);
@@ -53,16 +54,6 @@ const SectionsManager = () => {
         console.log(section)
     }
 
-    const editRowDate = (row, date) => {
-        setLayoutDate(layoutDate => ({...layoutDate, [row]: date}))
-    }
-
-    const removeRowDate = (row) => {
-        const obj = JSON.parse(JSON.stringify(layoutDate));
-        delete obj[row];
-        setLayoutDate(obj)
-    }
-
     const handleSettingsMenu = (id) => {
         if (id) {
             setCurId(id)
@@ -76,34 +67,44 @@ const SectionsManager = () => {
         setName(e.target.value)
     }
 
-    const handleElementType = (name, r, w) => {
+    const handleElementName = (name, r, w) => {
         const id = String(r) + w;
-        const prevRow = layoutDate[r];
-        const idxInRow = prevRow.findIndex((el) => { return el.i === id });
+        const prevRow = JSON.parse(JSON.stringify(layoutDate[r]));
+        const idxInRow = prevRow.findIndex((el) => { return String(el.i) === id });
         prevRow[idxInRow].name = name.label;
         const newRow = [...prevRow]
+        console.log('=====id: ', id, newRow)
         setLayoutDate(layoutDate => ({...layoutDate, [r]: newRow}));
     };
-    // --------------
 
-
-
-    // -------------------------
-
+    // Row 
     const addRow = () => {
-        if (rows < 5)
+        if (rows < 5) {
             setRows(prev => prev + 1);
+            const id = String(rows + 1) + 1;
+            setLayoutDate(layout => {
+                return ({...layout, [rows+1]: [{i: id, x: 0, y: rows, w: 1, h: 1}]})
+            })
+        }
     }
 
     const removeRow = () => {
         if (rows > 1) {
             setRows(prev => prev - 1);
+            const newLayoutDate = JSON.parse(JSON.stringify(layoutDate));
+            delete newLayoutDate[rows]
+            setLayoutDate(newLayoutDate)
         }
     }
-// -------------------------
+
+    const editRowDate = (row, date) => {
+        setLayoutDate(layoutDate => ({...layoutDate, [row]: date}))
+    }
+    //=====================================
+
 
     return (
-        <SectionsManagerContext.Provider value={{layoutDate, handleSettingsMenu, editRowDate, removeRowDate, handleElementType}}>
+        <SectionsManagerContext.Provider value={{layoutDate, handleSettingsMenu, editRowDate, handleElementName}}>
             <div className="manager-container">
                 <div className="manager-container__tools-menu">
                     <span className="manager-container__tools-menu__title">Tools bar</span>
@@ -128,7 +129,7 @@ const SectionsManager = () => {
                         value={name}
                         placeholder="Section Name">  
                     </input>
-                    <Constructor rows = {rows} handleSettingsMenu={handleSettingsMenu}/>
+                    <Constructor  rows={rows}/>
                     <button className="">Save section</button>
                 </div>
             </div>
