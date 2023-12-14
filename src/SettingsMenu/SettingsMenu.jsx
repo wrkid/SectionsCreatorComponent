@@ -9,7 +9,7 @@ import { Select } from 'antd';
 const SettingsMenu = ({ id }) => {
     const [r, w] = String(id).split('');
 
-    const { handleSettingsMenu, handleElementType } = useContext(SectionsManagerContext);
+    const { handleSettingsMenu, handleElementName } = useContext(SectionsManagerContext);
 
     return (
         <div className='settings-menu'>
@@ -25,7 +25,7 @@ const SettingsMenu = ({ id }) => {
                     labelInValue
                     defaultValue={{ value: 'lucy', label: 'BasicTitle' }}
                     style={{ width: 120 }}
-                    onChange={(label) => handleElementType(label, r, w)}
+                    onChange={(label) => handleElementName(label, r, w)}
                     options={[
                     {
                         value: 'Basic Title',

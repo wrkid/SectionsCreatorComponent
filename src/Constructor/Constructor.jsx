@@ -2,13 +2,13 @@ import './Constructor.scss';
 
 import ConstructorRowEl from '../ConstructorRowEl/ConstructorRowEl';
 
-const Constructor = ({ rows, handleSettingsMenu }) => {
+const Constructor = ({ rows }) => {
     
     const rowEls = () => {
         const rowEls = [];
-        for (let i = 0; i < rows; i++) {
+        for (let i = 1; i <= rows; i++) {
             rowEls.push((
-                <ConstructorRowEl key = {i} row={i} handleSettingsMenu={() => handleSettingsMenu()}/>
+                <ConstructorRowEl key = {i} row={i}/>
             ))
         } 
         return rowEls;
